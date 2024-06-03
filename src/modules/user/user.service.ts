@@ -20,7 +20,7 @@ export class UserService {
    * @param {string} email - User email
    * @param {Object} options - Additional options
    * @param {boolean} options.includePwd - Whether to include password in the returned user object
-   * @returns {Promise<User>} The user object if found, otherwise undefined
+   * @returns The user object if found, otherwise undefined
    */
   async findOneWithEmail(
     email: string,
