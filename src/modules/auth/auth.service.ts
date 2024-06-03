@@ -1,37 +1,40 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import AuthPayloadDto from './dtos/auth.dto';
-
-const mockUsers = [
-  {
-    id: 1,
-    email: 'abc@123.com',
-    password: 'abc@123',
-  },
-  {
-    id: 2,
-    email: 'abcd@123.com',
-    password: 'abcd@123',
-  },
-];
+import LoginPayloadDto from './dtos/auth.dto';
+import { UserService } from '../user/user.service';
+import { comparePassword } from './utils/login.utils';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private readonly userService: UserService,
+  ) {}
 
-  async loginUser(authPayload: AuthPayloadDto) {
-    const { email, password } = authPayload;
+  async validateUser(email: string, password: string) {
+    const user = await this.userService.findOneWithEmail(email, {
+      includePwd: true,
+    });
 
-    const findUser = mockUsers.find((user) => email === user.email);
-    if (!findUser) {
-      throw new HttpException('Invalid credentials', 401);
-    }
+    if (!user) return null;
 
-    if (password === findUser.password) {
-      const { password, ...rest } = findUser;
-      return this.jwtService.sign(rest);
-    }
-    return false;
+    const isCorrectPassword = await comparePassword(user.password, password);
+
+    if (!isCorrectPassword) return null;
+    return user;
+  }
+
+  async loginUser(user: User) {
+    const payload = {
+      email: user.email,
+      sub: user.id, // the unique identifier of the user as the subject
+    };
+
+    return {
+      user,
+      accessToken: this.jwtService.sign(payload),
+    };
   }
 }

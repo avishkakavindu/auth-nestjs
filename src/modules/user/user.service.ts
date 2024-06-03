@@ -7,11 +7,34 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private readonly userRepo: Repository<User>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
 
   async findById(id: string) {
     return this.userRepo.findOne({ where: { id } });
+  }
+
+  /**
+   * Find user by email address
+   * @param {string} email - User email
+   * @param {Object} options - Additional options
+   * @param {boolean} options.includePwd - Whether to include password in the returned user object
+   * @returns {Promise<User>} The user object if found, otherwise undefined
+   */
+  async findOneWithEmail(
+    email: string,
+    options: { includePwd?: boolean } = { includePwd: false },
+  ) {
+    const queryBuilder = this.userRepo
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email });
+
+    if (options.includePwd) {
+      queryBuilder.addSelect('user.password'); // Include password if requested
+    }
+
+    return queryBuilder.getOne();
   }
 
   async create(createUserDto: CreateUserDto) {

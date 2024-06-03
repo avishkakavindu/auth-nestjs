@@ -1,6 +1,6 @@
-class AuthPayloadDto {
+class LoginPayloadDto {
   email: string;
   password: string;
 }
 
-export default AuthPayloadDto;
+export default LoginPayloadDto;

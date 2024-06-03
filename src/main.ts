@@ -1,10 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import * as dotenv from 'dotenv';
 
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
+  dotenv.config(); // Load environment variables from .env file
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
