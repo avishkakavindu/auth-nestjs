@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 export const comparePassword = async (
   password: string,
   candidatePassword: string,
-) => {
+): Promise<boolean> => {
   const isValidPassword = await bcrypt.compare(candidatePassword, password);
   return isValidPassword;
 };
